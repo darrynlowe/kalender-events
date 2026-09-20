@@ -59,7 +59,12 @@ export function insertSorted(arr: IKalenderEvent[], element: IKalenderEvent) {
     }
 }
 
-export function getTimezoneOffset(date: Date) {
+export function getTimezoneOffset(date: Date, tz?: string) {
+    if (tz) {
+        try {
+            return -moment.tz(date.toISOString(), tz).utcOffset();
+        } catch { /* fall through to system-local behavior */ }
+    }
     const isoDate = date.toISOString();
     var offset = moment(isoDate).utcOffset();
     return -offset;
