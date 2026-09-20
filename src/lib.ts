@@ -212,15 +212,17 @@ export class KalenderEvents {
     private processRRule(ev: IKalenderEvent, preview: Date, pastview: Date, rdate: boolean = false) {
         var eventLength = ev.eventEnd!.getTime() - ev.eventStart!.getTime();
         var options = RRule.parseString(ev.rrule.toString());
-        if (!rdate)
-            options.dtstart = this.addOffset(ev.eventStart!, -getTimezoneOffset(ev.eventStart!));
+        const srcTz: string | undefined = (ev.eventStart as any)?.tz;
+        if (!rdate)            
+            options.dtstart = this.addOffset(ev.eventStart!, -getTimezoneOffset(ev.eventStart!, srcTz));
         else
-            options.dtstart = this.addOffset(options.dtstart, -getTimezoneOffset(options.dtstart));
+            options.dtstart = this.addOffset(options.dtstart, -getTimezoneOffset(options.dtstart, srcTz));
 
         if (options.until) {
-            options.until = this.addOffset(options.until, -getTimezoneOffset(options.until));
+            options.until = this.addOffset(options.until, -getTimezoneOffset(options.until, srcTz));
         }
         debug('options:' + JSON.stringify(options));
+        delete options.tzid;        
 
         var rule = new RRule(options);
         debug(
@@ -264,10 +266,10 @@ export class KalenderEvents {
             for (var i = 0; i < dates.length; i++) {
                 var ev2: IKalenderEvent = ce.clone(ev);
                 var start = dates[i];
-                ev2.eventStart = this.addOffset(start, getTimezoneOffset(start));
+                ev2.eventStart = this.addOffset(start, getTimezoneOffset(start, srcTz))
 
                 var end = new Date(start.getTime() + eventLength);
-                ev2.eventEnd = this.addOffset(end, getTimezoneOffset(end));
+                ev2.eventEnd = this.addOffset(end, getTimezoneOffset(end, srcTz));
 
                 if (ev2.alarms && ev2.alarms.length > 0) {
                     for (let alarm of ev2.alarms) {
