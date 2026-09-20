@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment = require('moment-timezone');
 import { duration } from 'moment'
 import { Config, IKalenderEvent } from './interfaces';
 
