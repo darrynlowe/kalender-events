@@ -60,6 +60,13 @@ function getStartEndDate(event: iCalEvent) {
         || moment(getDateVal(event.start)).toDate()
     );
 
+    // Preserve the original TZID so recurring-event expansion can use it
+    // instead of the Node-RED host's local system timezone.
+    const startTz = (event.start as any)?.tz;
+    const endTz = (event.end as any)?.tz;
+    if (startTz) (startDate as any).tz = startTz;
+    if (endTz) (endDate as any).tz = endTz;    
+
     return { startDate, endDate }
 }
 
